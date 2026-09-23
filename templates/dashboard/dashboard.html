@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Dashboard
+{% endblock %}
+
+{% block content %}
+
+<h1>Dashboard</h1>
+
+<section>
+    <h2>Mi cuenta</h2>
+
+    <p>
+        Número de cuenta: {{ cuenta.numero_cuenta }}
+    </p>
+
+    <p>
+        Saldo:
+        ${{ cuenta.saldo|floatformat:0 }} CLP
+    </p>
+</section>
+
+<section>
+    <h2>Últimas transacciones</h2>
+
+    {% if transacciones %}
+        <ul>
+            {% for transaccion in transacciones %}
+                <li>
+                    {{ transaccion.get_tipo_display }}
+                    -
+                    ${{ transaccion.monto|floatformat:0 }} CLP
+                    -
+                    {{ transaccion.fecha_hora|date:"d/m/Y H:i" }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No tienes transacciones registradas.</p>
+    {% endif %}
+</section>
+
+{% endblock %}

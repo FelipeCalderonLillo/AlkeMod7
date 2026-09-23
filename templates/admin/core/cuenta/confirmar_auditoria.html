@@ -1,0 +1,30 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+
+<h1>Confirmar consulta de contraloría</h1>
+
+<p>
+    Está a punto de consultar información privada asociada a la cuenta:
+</p>
+
+<p>
+    <strong>{{ cuenta.numero_cuenta }}</strong>
+</p>
+
+<p>
+    Esta información es confidencial y debe consultarse únicamente
+    con fines de auditoría y contraloría.
+</p>
+
+<form method="post">
+    {% csrf_token %}
+
+    <input type="submit" value="Confirmar consulta">
+
+    <a href="{% url 'admin:core_cuenta_changelist' %}">
+        Cancelar
+    </a>
+</form>
+
+{% endblock %}

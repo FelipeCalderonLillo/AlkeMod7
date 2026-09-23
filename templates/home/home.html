@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Alke Wallet</h1>
+
+<p>Página de inicio.</p>
+
+<a href="{% url 'login' %}">
+    Iniciar sesión
+</a>
+
+<a href="{% url 'registro' %}">
+    Registrarse
+</a>
+
+{% endblock %}

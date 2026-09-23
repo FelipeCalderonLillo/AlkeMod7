@@ -1,0 +1,314 @@
+@startuml
+
+title Sistema de Cuentas Digitales - Modelo Relacional
+
+hide methods
+hide stereotypes
+
+' =========================================================
+' USUARIO Y PERFIL
+' =========================================================
+
+entity User {
+* id : PK
+--
+* username : UNIQUE
+* password
+first_name
+last_name
+email
+is_active
+is_staff
+is_superuser
+}
+
+entity Perfil {
+* id : PK
+--
+* usuario_id : FK UNIQUE
+trabajo
+fecha_nacimiento
+biografia
+}
+
+User ||--|| Perfil : "posee"
+
+' =========================================================
+' CUENTA
+' =========================================================
+
+entity Cuenta {
+* id : PK
+--
+* usuario_id : FK UNIQUE
+* numero_cuenta : UNIQUE
+* saldo
+* creada_en
+}
+
+User ||--|| Cuenta : "posee"
+
+note right of Cuenta
+Una cuenta por usuario.
+
+```
+saldo >= 0.
+
+No se elimina física ni
+lógicamente dentro del alcance
+actual.
+
+El estado operativo se determina
+mediante User.is_active.
+
+Si User.is_active = false:
+  - no puede iniciar sesión
+  - una sesión existente se cierra
+  - no puede operar
+```
+
+end note
+
+' =========================================================
+' CONTACTOS
+' =========================================================
+
+entity Contacto {
+* id : PK
+--
+* usuario_id : FK
+* nombre
+* apellido
+* banco
+* numero_cuenta : UNIQUE
+}
+
+User ||--o{ Contacto : "administra"
+
+note right of Contacto
+Pertenece a un único usuario.
+
+```
+El número de cuenta es generado
+por el sistema.
+
+El usuario no lo ingresa
+manualmente.
+
+Contactos inmutables y no
+eliminables por el usuario.
+```
+
+end note
+
+' =========================================================
+' CATEGORIAS DE INTERES
+' =========================================================
+
+entity CategoriaInteres {
+* id : PK
+--
+* nombre : UNIQUE
+}
+
+User }o--o{ CategoriaInteres : "suscribe"
+
+note right of CategoriaInteres
+Categorías iniciales:
+
+```
+- Ahorro
+- Inversiones
+- Emprendimiento
+- Viajes
+
+El usuario puede suscribirse
+y modificar su propia suscripción.
+
+El administrador puede administrar
+las categorías desde Django Admin.
+```
+
+end note
+
+' =========================================================
+' TRANSFERENCIAS PENDIENTES
+' =========================================================
+
+entity TransferenciaPendiente {
+* id : PK
+--
+* usuario_id : FK
+* tipo
+* monto
+* cuenta_origen_id : FK
+cuenta_destino_id : FK NULL
+contacto_id : FK NULL
+* token : UNIQUE
+* creado_en
+* expira_en
+usado_en : NULL
+}
+
+User ||--o{ TransferenciaPendiente : "genera"
+
+Cuenta ||--o{ TransferenciaPendiente : "origen"
+Cuenta ||--o{ TransferenciaPendiente : "destino"
+Contacto ||--o{ TransferenciaPendiente : "referencia"
+
+note right of TransferenciaPendiente
+
+```
+TIPOS:
+
+INTERNA
+  cuenta_destino = Cuenta
+  contacto = NULL
+
+EXTERNA
+  cuenta_destino = NULL
+  contacto = Contacto
+
+monto >= $1000.
+
+token generado automáticamente.
+
+usado_en = NULL mientras
+la transferencia está pendiente.
+
+La combinación de relaciones
+está protegida mediante
+restricción de base de datos.
+```
+
+end note
+
+' =========================================================
+' TRANSACCIONES
+' =========================================================
+
+entity Transaccion {
+* id : PK
+--
+* tipo
+* monto
+* fecha_hora
+
+```
+cuenta_origen_id : FK NULL
+cuenta_destino_id : FK NULL
+contacto_id : FK NULL
+
+origen_nombre
+origen_apellido
+origen_numero_cuenta
+
+destino_nombre
+destino_apellido
+destino_numero_cuenta
+destino_banco
+```
+
+}
+
+Cuenta ||--o{ Transaccion : "origen"
+Cuenta ||--o{ Transaccion : "destino"
+Contacto ||--o{ Transaccion : "referencia"
+
+note right of Transaccion
+
+```
+TIPOS:
+
+DEPOSITO
+  origen = NULL
+  destino = Cuenta
+  contacto = NULL
+
+TRANSFERENCIA_INTERNA
+  origen = Cuenta
+  destino = Cuenta
+  contacto = NULL
+
+TRANSFERENCIA_EXTERNA
+  origen = Cuenta
+  destino = NULL
+  contacto = Contacto
+
+monto > 0.
+
+La combinación de relaciones
+está protegida mediante
+restricción de base de datos.
+
+Los datos de origen y destino
+incluyen snapshots históricos.
+
+La transacción es un registro
+histórico inmutable.
+```
+
+end note
+
+' =========================================================
+' REGLAS GENERALES
+' =========================================================
+
+note "REGLAS GENERALES"
+
+```
+User
+  - Utiliza Django contrib.auth.
+  - username único.
+  - is_active controla el estado
+    de acceso y operación.
+  - Usuarios administrativos no pueden
+    ser desactivados mientras conserven
+    privilegios administrativos.
+
+Perfil
+  - exactamente uno por usuario.
+  - no eliminable desde Admin.
+
+Cuenta
+  - exactamente una por usuario.
+  - saldo >= 0.
+  - no eliminable.
+  - estado determinado por User.is_active.
+
+Contacto
+  - pertenece a un único usuario.
+  - número generado por el sistema.
+  - inmutable para el usuario.
+  - no eliminable para el usuario.
+
+CategoriaInteres
+  - relación ManyToMany con User.
+  - usuario administra su propia suscripción.
+  - administrador administra las categorías.
+
+TransferenciaPendiente
+  - representa una transferencia
+    antes de convertirse en Transaccion.
+  - monto mínimo $1000.
+  - token único generado automáticamente.
+  - puede expirar.
+
+Transaccion
+  - registro histórico permanente.
+  - no editable.
+  - no eliminable.
+  - monto positivo.
+
+Numeros de cuenta
+  - formato xxx-xxxx-xxxx.
+  - generación automática.
+  - únicos en Cuenta.
+  - únicos en Contacto.
+  - el servicio de generación evita
+    colisiones entre ambos usos.
+```
+
+end note
+
+@enduml

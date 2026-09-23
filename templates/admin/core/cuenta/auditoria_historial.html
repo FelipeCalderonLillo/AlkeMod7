@@ -1,0 +1,60 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+
+<h1>Historial de cuenta</h1>
+
+<p>
+    <strong>Cuenta:</strong> {{ cuenta.numero_cuenta }}
+</p>
+
+<p>
+    <strong>Usuario:</strong>
+    {{ cuenta.usuario.first_name }} {{ cuenta.usuario.last_name }}
+</p>
+
+<table>
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Tipo</th>
+            <th>Monto</th>
+            <th>Origen</th>
+            <th>Destino</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for transaccion in transacciones %}
+            <tr>
+                <td>{{ transaccion.fecha_hora }}</td>
+                <td>{{ transaccion.get_tipo_display }}</td>
+                <td>${{ transaccion.monto }}</td>
+                <td>
+                    {{ transaccion.origen_nombre }}
+                    {{ transaccion.origen_apellido }}
+                    {{ transaccion.origen_numero_cuenta }}
+                </td>
+                <td>
+                    {{ transaccion.destino_nombre }}
+                    {{ transaccion.destino_apellido }}
+                    {{ transaccion.destino_numero_cuenta }}
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5">
+                    Esta cuenta no registra transacciones.
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<p>
+    <a href="{% url 'admin:core_cuenta_changelist' %}">
+        Volver a cuentas
+    </a>
+</p>
+
+{% endblock %}

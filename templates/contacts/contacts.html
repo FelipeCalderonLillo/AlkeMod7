@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Mis contactos</h1>
+
+<h2>Agregar contacto</h2>
+
+<form method="post">
+    {% csrf_token %}
+
+    {{ form.non_field_errors }}
+    {{ form.as_p }}
+
+    <button type="submit">Agregar contacto</button>
+</form>
+
+<h2>Contactos registrados</h2>
+
+{% if contactos %}
+    <ul>
+        {% for contacto in contactos %}
+            <li>
+                {{ contacto.nombre }} {{ contacto.apellido }}
+                - {{ contacto.get_banco_display }}
+                - {{ contacto.numero_cuenta }}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No tienes contactos registrados.</p>
+{% endif %}
+
+{% endblock %}

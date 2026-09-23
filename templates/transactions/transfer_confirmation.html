@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Confirmar transferencia</h1>
+
+<p>
+    Revisa los datos antes de confirmar la operación.
+</p>
+
+<div>
+    <p>
+        <strong>Tipo:</strong>
+        {{ pendiente.get_tipo_display }}
+    </p>
+
+    <p>
+        <strong>Monto:</strong>
+        ${{ pendiente.monto|floatformat:0 }}
+    </p>
+
+    <p>
+        <strong>Cuenta de origen:</strong>
+        {{ pendiente.cuenta_origen.numero_cuenta }}
+    </p>
+
+    {% if pendiente.tipo == "INTERNA" %}
+
+        <p>
+            <strong>Destinatario:</strong>
+            {{ pendiente.cuenta_destino.usuario.first_name }}
+            {{ pendiente.cuenta_destino.usuario.last_name }}
+        </p>
+
+        <p>
+            <strong>Cuenta de destino:</strong>
+            {{ pendiente.cuenta_destino.numero_cuenta }}
+        </p>
+
+    {% elif pendiente.tipo == "EXTERNA" %}
+
+        <p>
+            <strong>Destinatario:</strong>
+            {{ pendiente.contacto.nombre }}
+            {{ pendiente.contacto.apellido }}
+        </p>
+
+        <p>
+            <strong>Banco:</strong>
+            {{ pendiente.contacto.get_banco_display }}
+        </p>
+
+        <p>
+            <strong>Cuenta de destino:</strong>
+            {{ pendiente.contacto.numero_cuenta }}
+        </p>
+
+    {% endif %}
+</div>
+
+<form method="post">
+    {% csrf_token %}
+
+    <button type="submit">
+        Confirmar transferencia
+    </button>
+</form>
+
+<p>
+    <a href="{% url 'transfer' %}">
+        Cancelar
+    </a>
+</p>
+
+{% endblock %}

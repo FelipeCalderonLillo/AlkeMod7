@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Categorías de interés</h1>
+
+<h2>Mis suscripciones</h2>
+
+{% if categorias_suscritas %}
+    <ul>
+        {% for categoria in categorias_suscritas %}
+            <li>{{ categoria.nombre }}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No tienes categorías suscritas.</p>
+{% endif %}
+
+<h2>Administrar suscripciones</h2>
+
+<form method="post">
+    {% csrf_token %}
+
+    {{ form.non_field_errors }}
+    {{ form.as_p }}
+
+    <button type="submit" name="accion" value="suscribir">
+        Suscribirme
+    </button>
+
+    <button type="submit" name="accion" value="desuscribir">
+        Cancelar suscripción
+    </button>
+</form>
+
+<h2>Categorías disponibles</h2>
+
+{% if categorias %}
+    <ul>
+        {% for categoria in categorias %}
+            <li>{{ categoria.nombre }}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No existen categorías disponibles.</p>
+{% endif %}
+
+{% endblock %}

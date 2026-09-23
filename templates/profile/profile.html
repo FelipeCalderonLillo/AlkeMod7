@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Mi perfil</h1>
+
+<form method="post">
+    {% csrf_token %}
+
+    {{ form.non_field_errors }}
+    {{ form.as_p }}
+
+    <button type="submit">Guardar cambios</button>
+</form>
+
+{% endblock %}

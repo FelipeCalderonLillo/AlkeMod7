@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Transferencia</h1>
+
+<p>
+    Selecciona el tipo de transferencia y completa los datos solicitados.
+</p>
+
+<form method="post">
+    {% csrf_token %}
+
+    {{ form.non_field_errors }}
+
+    <div>
+        {{ form.tipo.label_tag }}
+        {{ form.tipo }}
+
+        {% for error in form.tipo.errors %}
+            <p>{{ error }}</p>
+        {% endfor %}
+    </div>
+
+    <div>
+        {{ form.monto.label_tag }}
+        {{ form.monto }}
+
+        {% for error in form.monto.errors %}
+            <p>{{ error }}</p>
+        {% endfor %}
+    </div>
+
+    <div>
+        {{ form.cuenta_destino.label_tag }}
+        {{ form.cuenta_destino }}
+
+        {% for error in form.cuenta_destino.errors %}
+            <p>{{ error }}</p>
+        {% endfor %}
+    </div>
+
+    <div>
+        {{ form.contacto.label_tag }}
+        {{ form.contacto }}
+
+        {% for error in form.contacto.errors %}
+            <p>{{ error }}</p>
+        {% endfor %}
+    </div>
+
+    <button type="submit">
+        Continuar
+    </button>
+</form>
+
+{% endblock %}

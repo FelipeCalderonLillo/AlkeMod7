@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Historial de transacciones</h1>
+
+{% if transacciones %}
+    <ul>
+        {% for transaccion in transacciones %}
+            <li>
+                {{ transaccion.get_tipo_display }}
+                - ${{ transaccion.monto }}
+                - {{ transaccion.fecha_hora }}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No tienes transacciones registradas.</p>
+{% endif %}
+
+{% endblock %}

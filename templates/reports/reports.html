@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Reportes</h1>
+
+<h2>Filtrar período</h2>
+
+<form method="get">
+    {{ form.non_field_errors }}
+
+    <p>
+        {{ form.fecha_inicio.label_tag }}
+        {{ form.fecha_inicio }}
+        {{ form.fecha_inicio.errors }}
+    </p>
+
+    <p>
+        {{ form.fecha_fin.label_tag }}
+        {{ form.fecha_fin }}
+        {{ form.fecha_fin.errors }}
+    </p>
+
+    <button type="submit">Generar reporte</button>
+</form>
+
+<h2>Resumen</h2>
+
+<ul>
+    <li>Ingresos: ${{ resumen.ingresos }}</li>
+    <li>Egresos: ${{ resumen.egresos }}</li>
+    <li>Cantidad de transacciones: {{ resumen.cantidad_transacciones }}</li>
+</ul>
+
+<h2>Transacciones</h2>
+
+{% if transacciones %}
+    <ul>
+        {% for transaccion in transacciones %}
+            <li>
+                {{ transaccion.get_tipo_display }}
+                -
+                ${{ transaccion.monto }}
+                -
+                {{ transaccion.fecha_hora }}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No existen transacciones en el período seleccionado.</p>
+{% endif %}
+
+{% endblock %}
