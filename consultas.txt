@@ -1,0 +1,51 @@
+
+
+
+usuarios = User.objects.all()
+print(usuarios)
+
+
+usuario = User.objects.get(username="username") # Búsqueda genérica, en la práctica se utiliza UsuarioRegistro como elemento
+print(usuario.email)
+
+
+transacciones_altas = Transaccion.objects.filter(monto__gt=5000)
+print(transacciones_altas)
+
+
+contactos = Contacto.objects.filter(nombre__icontains="a")
+print(contactos)
+
+
+user = User.objects.first()
+cuenta_usuario = user.cuenta
+print(cuenta_usuario.numero_cuenta, cuenta_usuario.saldo)
+
+
+total_depositos = Transaccion.objects.filter(tipo="DEPOSITO").count()
+print(f"Total depósitos: {total_depositos}")
+
+
+transacciones_gmail = Transaccion.objects.filter(cuenta_origen__usuario__email__endswith="@gmail.com")
+print(transacciones_gmail)
+
+
+transacciones = Transaccion.objects.select_related("cuenta_origen__usuario").all()
+for t in transacciones:
+    print(t.id, t.cuenta_origen.usuario.username if t.cuenta_origen else "Sin origen")
+
+
+transacciones_completas = Transaccion.objects.select_related(
+    "cuenta_origen__usuario", 
+    "cuenta_destino__usuario", 
+    "contacto"
+).all()
+for t in transacciones_completas:
+    print(f"ID: {t.id} | Origen: {t.cuenta_origen} | Destino: {t.cuenta_destino or t.contacto}")
+
+
+intereses_con_usuarios = Interes.objects.prefetch_related("usuarios").all()
+for interes in intereses_con_usuarios:
+    print(f"Categoría: {interes.nombre}")
+    for usuario in interes.usuarios.all(): # No ejecuta consultas adicionales
+        print(f"  - Suscrito: {usuario.username}")
