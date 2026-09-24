@@ -1,4 +1,4 @@
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect
@@ -48,6 +48,16 @@ class ReportView(LoginRequiredMixin, FormView):
                 fecha_inicio = form.cleaned_data.get("fecha_inicio")
                 fecha_fin = form.cleaned_data.get("fecha_fin")
                 
+        if not fecha_inicio and not fecha_fin:
+            fecha_fin = timezone.localdate()
+            fecha_inicio = fecha_fin - timedelta(days=30)
+            form = self.form_class(initial={
+                "fecha_inicio": fecha_inicio,
+                "fecha_fin": fecha_fin,
+            })
+        else:
+            form = self.form_class(queryparams) if queryparams else self.form_class()
+                
         fecha_inicio_datetime = self._convertir_inicio(fecha_inicio)
         fecha_fin_datetime = self._convertir_fin(fecha_fin)
         
@@ -63,7 +73,12 @@ class ReportView(LoginRequiredMixin, FormView):
             fecha_fin=fecha_fin_datetime,
         )
         
+        ingresos = resumen.get("ingresos", 0) or 0
+        egresos = resumen.get("egresos", 0) or 0
+        resumen["balance"] = ingresos - egresos
+        
         return {
+            "form": form,
             "transacciones": transacciones,
             "resumen": resumen,
             "fecha_inicio": fecha_inicio,

@@ -20,6 +20,7 @@ class ContactView(LoginRequiredMixin, View):
         )
         
         return render(
+            request,
             self.template_name,
             {
                 "form": form,
@@ -36,6 +37,7 @@ class ContactView(LoginRequiredMixin, View):
             )
             
             return render(
+                request,
                 self.template_name,
                 {
                     "form": form,

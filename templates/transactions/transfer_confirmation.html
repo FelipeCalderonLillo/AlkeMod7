@@ -1,75 +1,85 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
+{% block title %}Confirmar Transferencia - Alke Wallet{% endblock %}
 
 {% block content %}
+<div class="row justify-content-center my-4">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card card-custom p-4 shadow-sm">
+            
+            <!-- ENCABEZADO -->
+            <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+                <div class="icon-shape bg-warning-subtle text-warning rounded-circle p-3 fs-3">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <div>
+                    <h1 class="h4 text-brand-primary fw-bold mb-1">Confirmar Transferencia</h1>
+                    <p class="text-muted small mb-0">Revisa los detalles antes de procesar el envío</p>
+                </div>
+            </div>
 
-<h1>Confirmar transferencia</h1>
+            <!-- DETALLES DE LA OPERACIÓN -->
+            <div class="bg-light p-3 rounded-3 mb-4 border">
+                
+                <!-- Tipo de Transferencia -->
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                    <span class="text-muted small">Tipo de operación</span>
+                    <span class="badge bg-soft-brand text-dark fw-semibold">
+                        {{ pendiente.get_tipo_display }}
+                    </span>
+                </div>
 
-<p>
-    Revisa los datos antes de confirmar la operación.
-</p>
+                <!-- Destinatario -->
+                <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                    <span class="text-muted small">Destinatario</span>
+                    <span class="fw-semibold text-brand-primary text-end">
+                        {% if pendiente.tipo == 'INTERNA' %}
+                            {{ pendiente.cuenta_destino.usuario.get_full_name|default:pendiente.cuenta_destino.usuario.username }}
+                            <small class="d-block text-muted font-monospace fw-normal">
+                                N° {{ pendiente.cuenta_destino.numero_cuenta }}
+                            </small>
+                        {% else %}
+                            {{ pendiente.contacto.nombre }} {{ pendiente.contacto.apellido }}
+                            <small class="d-block text-muted font-monospace fw-normal">
+                                {{ pendiente.contacto.get_banco_display }}
+                            </small>
+                        {% endif %}
+                    </span>
+                </div>
 
-<div>
-    <p>
-        <strong>Tipo:</strong>
-        {{ pendiente.get_tipo_display }}
-    </p>
+                <!-- Monto a Transferir -->
+                <div class="d-flex justify-content-between align-items-center py-2">
+                    <span class="text-muted small">Monto a transferir</span>
+                    <span class="h4 fw-bold text-brand-primary mb-0">
+                        ${{ pendiente.monto|floatformat:"0" }}
+                    </span>
+                </div>
+            </div>
 
-    <p>
-        <strong>Monto:</strong>
-        ${{ pendiente.monto|floatformat:0 }}
-    </p>
+            <!-- ADVERTENCIA DE EXPIRACIÓN -->
+            <div class="alert alert-info d-flex align-items-center gap-2 py-2 px-3 small mb-4" role="alert">
+                <i class="bi bi-clock-history fs-5"></i>
+                <div>
+                    Esta solicitud expirará automáticamente el <strong>{{ pendiente.expira_en|date:"d/m/Y H:i" }}</strong>.
+                </div>
+            </div>
 
-    <p>
-        <strong>Cuenta de origen:</strong>
-        {{ pendiente.cuenta_origen.numero_cuenta }}
-    </p>
+            <!-- FORMULARIO DE CONFIRMACIÓN -->
+            <form method="post" action="{% url 'confirm_transfer' token=pendiente.token %}">
+                {% csrf_token %}
 
-    {% if pendiente.tipo == "INTERNA" %}
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-brand btn-lg fw-semibold d-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <span>Confirmar y Enviar Dinero</span>
+                    </button>
+                    <a href="{% url 'transfer' %}" class="btn btn-outline-secondary text-center small">
+                        Cancelar y corregir datos
+                    </a>
+                </div>
+            </form>
 
-        <p>
-            <strong>Destinatario:</strong>
-            {{ pendiente.cuenta_destino.usuario.first_name }}
-            {{ pendiente.cuenta_destino.usuario.last_name }}
-        </p>
-
-        <p>
-            <strong>Cuenta de destino:</strong>
-            {{ pendiente.cuenta_destino.numero_cuenta }}
-        </p>
-
-    {% elif pendiente.tipo == "EXTERNA" %}
-
-        <p>
-            <strong>Destinatario:</strong>
-            {{ pendiente.contacto.nombre }}
-            {{ pendiente.contacto.apellido }}
-        </p>
-
-        <p>
-            <strong>Banco:</strong>
-            {{ pendiente.contacto.get_banco_display }}
-        </p>
-
-        <p>
-            <strong>Cuenta de destino:</strong>
-            {{ pendiente.contacto.numero_cuenta }}
-        </p>
-
-    {% endif %}
+        </div>
+    </div>
 </div>
-
-<form method="post">
-    {% csrf_token %}
-
-    <button type="submit">
-        Confirmar transferencia
-    </button>
-</form>
-
-<p>
-    <a href="{% url 'transfer' %}">
-        Cancelar
-    </a>
-</p>
-
 {% endblock %}

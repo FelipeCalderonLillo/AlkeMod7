@@ -1,0 +1,360 @@
+/* ==========================================================================
+   VARIABLES GLOBALES - PALETA PASTEL CORPORATIVA (OPCIÓN 1)
+   ========================================================================== */
+:root {
+    --brand-primary: #34495E;         /* Azul Ejecutivo */
+    --brand-accent: #7A9DCE;          /* Azul Pastel Accent */
+    --brand-accent-hover: #6082B6;    /* Azul Pastel Hover */
+    --bg-main: #F8FAFC;               /* Fondo General */
+    --bg-card: #FFFFFF;               /* Fondo Tarjetas / Módulos */
+    --text-main: #2C3E50;             /* Texto Principal */
+    --text-muted: #7F8C8D;            /* Texto Secundario */
+    --border-color: #E2E8F0;          /* Bordes Finos */
+
+    /* Colores de Estado / Indicadores (Pastel) */
+    --status-success-bg: #E8F5E9;
+    --status-success-text: #2E7D32;
+    --status-danger-bg: #FFEBEE;
+    --status-danger-text: #C62828;
+    --status-info-bg: #E3F2FD;
+    --status-info-text: #1565C0;
+}
+
+/* ==========================================================================
+   ESTILOS GENERALES DE LA APLICACIÓN
+   ========================================================================== */
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+.text-brand-accent {
+    color: var(--brand-accent) !important;
+}
+
+/* --- Encabezados de Página --- */
+.page-header {
+    margin-bottom: 1.75rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.75rem;
+}
+
+.page-title {
+    font-weight: 600;
+    font-size: 1.5rem;
+    color: var(--brand-primary);
+    letter-spacing: -0.02em;
+}
+
+/* --- Tarjetas Universales --- */
+.card-custom {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* --- Botones Reutilizables --- */
+.btn-brand {
+    background-color: var(--brand-accent);
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1.25rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-brand:hover {
+    background-color: var(--brand-accent-hover);
+    color: #FFFFFF;
+}
+
+.btn-outline-brand {
+    background-color: transparent;
+    color: var(--brand-primary);
+    border: 1px solid var(--brand-primary);
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-brand:hover {
+    background-color: var(--brand-primary);
+    color: #FFFFFF;
+}
+
+/* --- Formularios Estándar --- */
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    padding: 0.6rem 0.8rem;
+    color: var(--text-main);
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--brand-accent);
+    box-shadow: 0 0 0 3px rgba(122, 157, 206, 0.2);
+}
+
+.form-label {
+    font-weight: 500;
+    font-size: 0.875rem;
+    color: var(--text-main);
+    margin-bottom: 0.4rem;
+}
+
+/* --- Navbar Personalizado --- */
+.navbar-custom {
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.8rem 0;
+}
+
+.navbar-brand-custom {
+    font-weight: 700;
+    color: var(--brand-primary);
+    font-size: 1.25rem;
+    letter-spacing: -0.03em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-link-custom {
+    color: var(--text-muted);
+    font-weight: 500;
+    padding: 0.5rem 0.8rem !important;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.nav-link-custom:hover, .nav-link-custom.active {
+    color: var(--brand-primary);
+    background-color: var(--bg-main);
+}
+
+/* --- Alertas / Mensajes Flash --- */
+.alert-success {
+    background-color: var(--status-success-bg);
+    color: var(--status-success-text);
+    border: 1px solid rgba(46, 125, 50, 0.2);
+    border-radius: 8px;
+}
+
+.alert-danger, .alert-error {
+    background-color: var(--status-danger-bg);
+    color: var(--status-danger-text);
+    border: 1px solid rgba(198, 40, 40, 0.2);
+    border-radius: 8px;
+}
+
+.alert-info {
+    background-color: var(--status-info-bg);
+    color: var(--status-info-text);
+    border: 1px solid rgba(21, 101, 192, 0.2);
+    border-radius: 8px;
+}
+
+/* --- Footer --- */
+.footer-custom {
+    border-top: 1px solid var(--border-color);
+    background-color: var(--bg-card);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    padding: 1.25rem 0;
+    margin-top: auto;
+}
+
+/* ==========================================================================
+    MÓDULOS DE AUTENTICACIÓN (LOGIN / REGISTRO) Y FORMULARIOS AVANZADOS
+   ========================================================================== */
+
+/* Contenedor de ícono superior en tarjetas de login/registro */
+.brand-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    background-color: var(--bg-main);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Estilos de bordes y enfoque para grupos de inputs con ícono */
+.input-group .input-group-text {
+    border-color: var(--border-color);
+    border-radius: 8px 0 0 8px;
+}
+
+.input-group .form-control {
+    border-radius: 0 8px 8px 0;
+}
+
+.input-group .form-control:focus {
+    z-index: 3;
+}
+
+.input-group:focus-within .input-group-text {
+    border-color: var(--brand-accent);
+}
+
+/* Manejo de feedback de error con Bootstrap */
+.invalid-feedback {
+    font-size: 0.8rem;
+    color: var(--status-danger-text);
+    margin-top: 0.35rem;
+}
+
+/* ==========================================================================
+    ESTILOS ADICIONALES PARA FORMULARIOS MULTICAMPO Y DIVISIONES
+   ========================================================================== */
+
+/* Separador horizontal genérico para contenedores */
+.border-color {
+    border-color: var(--border-color) !important;
+}
+
+/* Ajustes de entradas de fecha para consistencia con la tipografía */
+input[type="date"].form-control {
+    color: var(--text-main);
+}
+
+/* ==========================================================================
+    COMPONENTES PARA HOME / LANDING Y SECCIONES DE CARACTERÍSTICAS
+   ========================================================================== */
+
+/* Fondo suave de insignias/badges reutilizables */
+.bg-soft-brand {
+    background-color: rgba(122, 157, 206, 0.15);
+}
+
+.bg-success-soft {
+    background-color: var(--status-success-bg);
+    color: var(--status-success-text);
+}
+
+/* Cajas de íconos para listas de características */
+.feature-icon-box {
+    width: 44px;
+    height: 44px;
+    background-color: var(--bg-main);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: justify-content;
+    justify-content: center;
+}
+
+/* Tipografía de insignias */
+.fs-7 {
+    font-size: 0.8rem;
+}
+
+.bg-main {
+    background-color: var(--bg-main) !important;
+}
+
+/* ==========================================================================
+    ESTILOS DE DASHBOARD Y ELEMENTOS FINANCIEROS
+   ========================================================================== */
+
+/* Fondo suave de saldo */
+.bg-primary-soft {
+    background-color: #F1F5F9;
+}
+
+.bg-info-soft {
+    background-color: var(--status-info-bg);
+}
+
+.bg-danger-soft {
+    background-color: var(--status-danger-bg);
+}
+
+.bg-brand-soft {
+    background-color: rgba(122, 157, 206, 0.15);
+}
+
+/* Cajas de íconos */
+.balance-icon-box {
+    width: 48px;
+    height: 48px;
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+/* Enlaces de acciones rápidas */
+.quick-action-item {
+    transition: background-color 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.quick-action-item:hover {
+    background-color: var(--bg-main);
+    border-color: var(--border-color);
+}
+
+/* Tablas personalizadas */
+.custom-table th {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.75rem;
+}
+
+.custom-table td {
+    padding: 0.85rem 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tracking-wider {
+    letter-spacing: 0.05em;
+}
+
+/* ==========================================================================
+    ESTILOS DE AGENDA DE CONTACTOS
+   ========================================================================== */
+
+.avatar-circle-sm {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.avatar-circle-lg {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}

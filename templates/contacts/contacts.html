@@ -1,34 +1,171 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
+{% block title %}Agenda de Contactos - Alke Wallet{% endblock %}
 
 {% block content %}
+<!-- ENCABEZADO DE PÁGINA -->
+<div class="page-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="page-title mb-1">Agenda de Contactos</h1>
+        <p class="text-muted small mb-0">Agrega y gestiona destinatarios para tus transferencias externas</p>
+    </div>
+</div>
 
-<h1>Mis contactos</h1>
+<div class="row g-4">
+    <!-- COLUMNA IZQUIERDA: FORMULARIO DE REGISTRO -->
+    <div class="col-12 col-lg-5">
+        <div class="card card-custom p-4">
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <i class="bi bi-person-plus text-brand-accent fs-4"></i>
+                <h2 class="h5 text-brand-primary fw-semibold mb-0">Nuevo Contacto</h2>
+            </div>
 
-<h2>Agregar contacto</h2>
+            <form method="post" action="{% url 'contacts' %}" novalidate>
+                {% csrf_token %}
 
-<form method="post">
-    {% csrf_token %}
+                <!-- Errores generales del formulario -->
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger p-2 small mb-3">
+                        {% for error in form.non_field_errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
 
-    {{ form.non_field_errors }}
-    {{ form.as_p }}
+                <!-- Campo Nombre -->
+                <div class="mb-3">
+                    <label for="{{ form.nombre.id_for_label }}" class="form-label small fw-medium text-brand-primary">
+                        {{ form.nombre.label }}
+                    </label>
+                    <input type="text" 
+                            name="{{ form.nombre.html_name }}" 
+                            id="{{ form.nombre.id_for_label }}" 
+                            class="form-control {% if form.nombre.errors %}is-invalid{% endif %}"
+                            value="{{ form.nombre.value|default:'' }}"
+                            placeholder="Ej. Juan"
+                            required>
+                    {% if form.nombre.errors %}
+                        <div class="invalid-feedback small">
+                            {{ form.nombre.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
 
-    <button type="submit">Agregar contacto</button>
-</form>
+                <!-- Campo Apellido -->
+                <div class="mb-3">
+                    <label for="{{ form.apellido.id_for_label }}" class="form-label small fw-medium text-brand-primary">
+                        {{ form.apellido.label }}
+                    </label>
+                    <input type="text" 
+                            name="{{ form.apellido.html_name }}" 
+                            id="{{ form.apellido.id_for_label }}" 
+                            class="form-control {% if form.apellido.errors %}is-invalid{% endif %}"
+                            value="{{ form.apellido.value|default:'' }}"
+                            placeholder="Ej. Pérez"
+                            required>
+                    {% if form.apellido.errors %}
+                        <div class="invalid-feedback small">
+                            {{ form.apellido.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
 
-<h2>Contactos registrados</h2>
+                <!-- Campo Banco -->
+                <div class="mb-4">
+                    <label for="{{ form.banco.id_for_label }}" class="form-label small fw-medium text-brand-primary">
+                        {{ form.banco.label }}
+                    </label>
+                    <select name="{{ form.banco.html_name }}" 
+                            id="{{ form.banco.id_for_label }}" 
+                            class="form-select {% if form.banco.errors %}is-invalid{% endif %}" 
+                            required>
+                        {% for value, label in form.fields.banco.choices %}
+                            <option value="{{ value }}" {% if form.banco.value == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    {% if form.banco.errors %}
+                        <div class="invalid-feedback small">
+                            {{ form.banco.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
 
-{% if contactos %}
-    <ul>
-        {% for contacto in contactos %}
-            <li>
-                {{ contacto.nombre }} {{ contacto.apellido }}
-                - {{ contacto.get_banco_display }}
-                - {{ contacto.numero_cuenta }}
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No tienes contactos registrados.</p>
-{% endif %}
+                <button type="submit" class="btn btn-brand w-100 d-flex align-items-center justify-content-center gap-2">
+                    <i class="bi bi-save"></i>
+                    <span>Guardar Contacto</span>
+                </button>
+            </form>
+        </div>
+    </div>
 
+    <!-- COLUMNA DERECHA: LISTADO DE CONTACTOS -->
+    <div class="col-12 col-lg-7">
+        <div class="card card-custom p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="h5 text-brand-primary fw-semibold mb-0">Mis Contactos Guardados</h2>
+                <span class="badge bg-soft-brand text-dark rounded-pill px-3 py-1 fs-7">
+                    {{ contactos|length }} registrados
+                </span>
+            </div>
+
+            {% if contactos %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 custom-table">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="text-muted small fw-medium">Contacto</th>
+                                <th scope="col" class="text-muted small fw-medium">Banco</th>
+                                <th scope="col" class="text-muted small fw-medium">N° de Cuenta</th>
+                                <th scope="col" class="text-muted small fw-medium text-end">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in contactos %}
+                                <tr>
+                                    <!-- Nombre del Contacto -->
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="avatar-circle-sm bg-brand-soft text-brand-accent fw-bold fs-7">
+                                                {{ c.nombre|slice:":1" }}{{ c.apellido|slice:":1" }}
+                                            </div>
+                                            <div>
+                                                <div class="fw-semibold small text-brand-primary">
+                                                    {{ c.nombre }} {{ c.apellido }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <!-- Banco -->
+                                    <td class="small text-muted">
+                                        {{ c.get_banco_display }}
+                                    </td>
+
+                                    <!-- Número de Cuenta -->
+                                    <td class="small font-monospace text-brand-primary">
+                                        {{ c.numero_cuenta }}
+                                    </td>
+
+                                    <!-- Acción rápida Transferir -->
+                                    <td class="text-end">
+                                        <a href="{% url 'transfer' %}?contacto={{ c.id }}" class="btn btn-sm btn-outline-brand px-2 py-1 fs-7" title="Transferir a este contacto">
+                                            <i class="bi bi-send me-1"></i> Transferir
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-people fs-1 d-block mb-2 text-brand-accent"></i>
+                    <p class="small mb-0">Aún no has guardado ningún contacto en tu agenda.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
 {% endblock %}

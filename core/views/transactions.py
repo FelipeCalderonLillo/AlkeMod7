@@ -96,7 +96,7 @@ class DepositView(LoginRequiredMixin, FormView):
         try:
             DepositService.realizar_deposito(
                 usuario=self.request.user,
-                monto=form.cleaned_data["monto"],
+                monto=form.cleaned_data,
             )
         except DepositError as error:
             form.add_error(None, str(error))
