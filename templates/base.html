@@ -1,28 +1,153 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Alke Wallet{% endblock %}</title>
 
-    <title>
-        {% block title %}
-            Alke Wallet
-        {% endblock %}
-    </title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- CSS Principal Personalizado -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
 
-    {% if messages %}
-        {% for message in messages %}
-            <div>
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
+    <!-- NAVBAR PRINCIPAL -->
+    <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-semibold" href="{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'home' %}{% endif %}">
+                <i class="bi bi-wallet2 text-brand-accent"></i>
+                <span>Alke Wallet</span>
+            </a>
 
-    <main>
-        {% block content %}
-        {% endblock %}
+            <button
+                class="navbar-toggler border-0"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarPrincipal"
+                aria-controls="navbarPrincipal"
+                aria-expanded="false"
+                aria-label="Abrir navegación"
+            >
+                <i class="bi bi-list fs-3"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarPrincipal">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3 gap-1">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" href="{% url 'dashboard' %}">
+                                <i class="bi bi-grid-1x2 me-1"></i> Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" href="{% url 'deposit' %}">
+                                <i class="bi bi-people me-1"></i> Cargar saldo
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" href="{% url 'transfer' %}">
+                                <i class="bi bi-people me-1"></i> Transferir
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" href="{% url 'contacts' %}">
+                                <i class="bi bi-people me-1"></i> Contactos
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" href="{% url 'interests' %}">
+                                <i class="bi bi-star me-1"></i> Intereses
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" href="{% url 'history' %}">
+                                <i class="bi bi-clock-history me-1"></i> Historial
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-custom" href="{% url 'reports' %}">
+                                <i class="bi bi-bar-chart-line me-1"></i> Reportes
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+
+                <!-- Acciones de Usuario / Autenticación -->
+                <div class="d-flex align-items-center gap-2 mt-3 mt-lg-0">
+                    {% if user.is_authenticated %}
+                        <a class="btn btn-sm btn-outline-brand d-flex align-items-center gap-1" href="{% url 'profile' %}">
+                            <i class="bi bi-person-circle"></i>
+                            <span>{{ user.username }}</span>
+                        </a>
+                        
+                        <!-- Formulario POST adaptado exactamente con las clases de tu botón original -->
+                        <form method="post" action="{% url 'logout' %}" class="d-inline m-0 p-0">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <span class="d-none d-sm-inline">Salir</span>
+                            </button>
+                        </form>
+                    {% else %}
+                        <a class="btn btn-sm btn-outline-brand" href="{% url 'login' %}">
+                            Iniciar sesión
+                        </a>
+                        <a class="btn btn-sm btn-brand" href="{% url 'registro' %}">
+                            Crear cuenta
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="py-4">
+        <div class="container">
+            <!-- Mensajes de Alerta Flash de Django -->
+            {% if messages %}
+                <div class="row justify-content-center">
+                    <div class="col-12">
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show d-flex align-items-center gap-2 mb-3" role="alert">
+                                {% if message.tags == 'success' %}
+                                    <i class="bi bi-check-circle-fill fs-5"></i>
+                                {% elif message.tags == 'danger' or message.tags == 'error' %}
+                                    <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                                {% else %}
+                                    <i class="bi bi-info-circle-fill fs-5"></i>
+                                {% endif %}
+                                <div>{{ message }}</div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Bloque de contenido principal -->
+            {% block content %}
+            {% endblock %}
+        </div>
     </main>
 
+    <!-- FOOTER CORPORATIVO MINIMALISTA -->
+    <footer class="footer-custom">
+        <div class="container text-center text-md-between d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+            <div>
+                <span class="fw-semibold">Alke Wallet</span> &copy; 2026. Todos los derechos reservados.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

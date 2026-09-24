@@ -1,17 +1,115 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
+{% block title %}Inicio - Alke Wallet{% endblock %}
 
 {% block content %}
+<!-- SECCIÓN HERO / BIENVENIDA -->
+<section class="py-4 py-md-5">
+    <div class="row align-items-center g-4">
+        <div class="col-12 col-lg-6">
+            <span class="badge bg-soft-brand text-dark mb-3 px-3 py-2 rounded-pill fs-7 fw-medium">
+                <i class="bi bi-shield-check me-1 text-brand-accent"></i> Plataforma Financiera Segura
+            </span>
+            <h1 class="display-5 fw-bold text-brand-primary mb-3 lh-sm">
+                Gestión bancaria simple, rápida y transparente.
+            </h1>
+            <p class="lead text-muted mb-4">
+                Toma el control total de tus fondos, realiza transferencias inmediatas y monitorea tus movimientos en una plataforma diseñada con la mayor seguridad corporativa.
+            </p>
+            
+            <div class="d-flex flex-wrap gap-3">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="btn btn-brand btn-lg d-flex align-items-center gap-2">
+                        <span>Ir a mi Dashboard</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </a>
+                {% else %}
+                    <a href="{% url 'registro' %}" class="btn btn-brand btn-lg d-flex align-items-center gap-2">
+                        <span>Abrir una cuenta</span>
+                        <i class="bi bi-person-plus"></i>
+                    </a>
+                    <a href="{% url 'login' %}" class="btn btn-outline-brand btn-lg d-flex align-items-center gap-2">
+                        <span>Iniciar sesión</span>
+                        <i class="bi bi-box-arrow-in-right"></i>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
 
-<h1>Alke Wallet</h1>
+        <div class="col-12 col-lg-6 text-center">
+            <div class="card card-custom p-4 p-md-5 hero-preview-card position-relative overflow-hidden">
+                <div class="brand-icon-wrapper mx-auto mb-3" style="width: 64px; height: 64px;">
+                    <i class="bi bi-wallet2 text-brand-accent fs-1"></i>
+                </div>
+                <h2 class="h5 fw-semibold text-brand-primary mb-2">Alke Wallet Digital</h2>
+                <p class="small text-muted mb-4">Soluciones financieras a la medida de tus necesidades.</p>
+                
+                <div class="p-3 bg-main rounded-3 text-start border border-color">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="small text-muted fw-medium">Servicios integrados</span>
+                        <span class="badge bg-success-soft text-success small">100% Operativo</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-3 py-2 border-bottom border-color">
+                        <i class="bi bi-arrow-left-right text-brand-accent fs-5"></i>
+                        <span class="small fw-semibold">Transferencias Internas y Externas</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-3 py-2 border-bottom border-color">
+                        <i class="bi bi-file-earmark-bar-graph text-brand-accent fs-5"></i>
+                        <span class="small fw-semibold">Reportes Consolidados de Saldo</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-3 pt-2">
+                        <i class="bi bi-journal-bookmark text-brand-accent fs-5"></i>
+                        <span class="small fw-semibold">Agenda de Contactos Frecuentes</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-<p>Página de inicio.</p>
+<!-- SECCIÓN CARACTERÍSTICAS / PILARES -->
+<section class="py-4 border-top border-color">
+    <div class="text-center mb-5">
+        <h2 class="h3 page-title mb-2">Diseñado para tu tranquilidad</h2>
+        <p class="text-muted small">Herramientas clave integradas para el manejo diario de tus cuentas.</p>
+    </div>
 
-<a href="{% url 'login' %}">
-    Iniciar sesión
-</a>
+    <div class="row g-4">
+        <div class="col-12 col-md-4">
+            <div class="card card-custom h-100 p-4">
+                <div class="feature-icon-box mb-3">
+                    <i class="bi bi-arrow-left-right text-brand-accent fs-4"></i>
+                </div>
+                <h3 class="h5 text-brand-primary fw-semibold">Transferencias Ágiles</h3>
+                <p class="small text-muted mb-0">
+                    Envía dinero de forma rápida a otras cuentas del sistema o a tus contactos externos preconfigurados de manera transparente.
+                </p>
+            </div>
+        </div>
 
-<a href="{% url 'registro' %}">
-    Registrarse
-</a>
+        <div class="col-12 col-md-4">
+            <div class="card card-custom h-100 p-4">
+                <div class="feature-icon-box mb-3">
+                    <i class="bi bi-pie-chart text-brand-accent fs-4"></i>
+                </div>
+                <h3 class="h5 text-brand-primary fw-semibold">Reportes y Filtros</h3>
+                <p class="small text-muted mb-0">
+                    Analiza el historial de transacciones por rangos de fechas específicos para mantener el control completo de tus egresos e ingresos.
+                </p>
+            </div>
+        </div>
 
+        <div class="col-12 col-md-4">
+            <div class="card card-custom h-100 p-4">
+                <div class="feature-icon-box mb-3">
+                    <i class="bi bi-person-lines-fill text-brand-accent fs-4"></i>
+                </div>
+                <h3 class="h5 text-brand-primary fw-semibold">Gestión de Contactos</h3>
+                <p class="small text-muted mb-0">
+                    Organiza tu libreta de contactos bancarios favoritos para realizar transferencias recurrentes con un par de clics.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}

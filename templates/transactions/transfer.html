@@ -1,57 +1,179 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
+{% block title %}Realizar Transferencia - Alke Wallet{% endblock %}
 
 {% block content %}
+<div class="row justify-content-center my-4">
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card card-custom p-4 shadow-sm">
+            
+            <!-- ENCABEZADO -->
+            <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+                <div class="icon-shape bg-brand-soft text-brand-primary rounded-circle p-3 fs-3">
+                    <i class="bi bi-send"></i>
+                </div>
+                <div>
+                    <h1 class="h4 text-brand-primary fw-bold mb-1">Transferir Fondos</h1>
+                    <p class="text-muted small mb-0">Envía dinero a cuentas del banco o contactos externos</p>
+                </div>
+            </div>
 
-<h1>Transferencia</h1>
+            <!-- TARJETA INFORMATIVA DEL SALDO ACTUAL -->
+            <div class="bg-light p-3 rounded-3 mb-4 d-flex align-items-center justify-content-between border">
+                <div>
+                    <span class="text-muted small d-block">Saldo disponible</span>
+                    <span class="h5 fw-bold text-brand-primary mb-0">
+                        ${{ user.cuenta.saldo|floatformat:"0" }}
+                    </span>
+                </div>
+                <i class="bi bi-wallet2 text-brand-accent fs-3"></i>
+            </div>
 
-<p>
-    Selecciona el tipo de transferencia y completa los datos solicitados.
-</p>
+            <!-- FORMULARIO DE TRANSFERENCIA -->
+            <form method="post" action="{% url 'transfer' %}" novalidate>
+                {% csrf_token %}
 
-<form method="post">
-    {% csrf_token %}
+                <!-- Errores generales del formulario -->
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger p-2 small mb-3">
+                        {% for error in form.non_field_errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
 
-    {{ form.non_field_errors }}
+                <!-- Campo Tipo de Transferencia -->
+                <div class="mb-3">
+                    <label for="{{ form.tipo.id_for_label }}" class="form-label small fw-medium text-brand-primary">
+                        {{ form.tipo.label }}
+                    </label>
+                    <select name="{{ form.tipo.html_name }}" 
+                            id="{{ form.tipo.id_for_label }}" 
+                            class="form-select {% if form.tipo.errors %}is-invalid{% endif %}"
+                            onchange="toggleTransferFields()">
+                        {% for value, label in form.fields.tipo.choices %}
+                            <option value="{{ value }}" {% if form.tipo.value == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    {% if form.tipo.errors %}
+                        <div class="invalid-feedback small">
+                            {{ form.tipo.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
 
-    <div>
-        {{ form.tipo.label_tag }}
-        {{ form.tipo }}
+                <!-- Campo Cuenta Destino (Para Transferencia Interna) -->
+                <div class="mb-3" id="group-cuenta-destino">
+                    <label for="{{ form.cuenta_destino.id_for_label }}" class="form-label small fw-medium text-brand-primary">
+                        {{ form.cuenta_destino.label }}
+                    </label>
+                    <select name="{{ form.cuenta_destino.html_name }}" 
+                            id="{{ form.cuenta_destino.id_for_label }}" 
+                            class="form-select {% if form.cuenta_destino.errors %}is-invalid{% endif %}">
+                        <option value="">-- Selecciona una cuenta --</option>
+                        {% for cuenta in form.fields.cuenta_destino.queryset %}
+                            <option value="{{ cuenta.pk }}" {% if form.cuenta_destino.value|add:"" == cuenta.pk|add:"" %}selected{% endif %}>
+                                {{ cuenta.usuario.get_full_name|default:cuenta.usuario.username }} ({{ cuenta.numero_cuenta }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                    {% if form.cuenta_destino.errors %}
+                        <div class="invalid-feedback d-block small">
+                            {{ form.cuenta_destino.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
 
-        {% for error in form.tipo.errors %}
-            <p>{{ error }}</p>
-        {% endfor %}
+                <!-- Campo Contacto (Para Transferencia Externa) -->
+                <div class="mb-3" id="group-contacto">
+                    <label for="{{ form.contacto.id_for_label }}" class="form-label small fw-medium text-brand-primary">
+                        {{ form.contacto.label }}
+                    </label>
+                    <div class="input-group">
+                        <select name="{{ form.contacto.html_name }}" 
+                                id="{{ form.contacto.id_for_label }}" 
+                                class="form-select {% if form.contacto.errors %}is-invalid{% endif %}">
+                            <option value="">-- Selecciona un contacto --</option>
+                            {% for contacto in form.fields.contacto.queryset %}
+                                <option value="{{ contacto.pk }}" {% if form.contacto.value|add:"" == contacto.pk|add:"" %}selected{% endif %}>
+                                    {{ contacto.nombre }} {{ contacto.apellido }} - {{ contacto.get_banco_display }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <a href="{% url 'contacts' %}" class="btn btn-outline-secondary" title="Agregar nuevo contacto">
+                            <i class="bi bi-person-plus"></i>
+                        </a>
+                    </div>
+                    {% if form.contacto.errors %}
+                        <div class="invalid-feedback d-block small">
+                            {{ form.contacto.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Campo Monto -->
+                <div class="mb-4">
+                    <label for="{{ form.monto.id_for_label }}" class="form-label small fw-medium text-brand-primary">
+                        {{ form.monto.label }}
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light text-muted fw-bold">$</span>
+                        <input type="number" 
+                                name="{{ form.monto.html_name }}" 
+                                id="{{ form.monto.id_for_label }}" 
+                                class="form-control form-control-lg {% if form.monto.errors %}is-invalid{% endif %}"
+                                value="{{ form.monto.value|default:'' }}"
+                                placeholder="1000"
+                                min="1000"
+                                step="1"
+                                required>
+                    </div>
+                    <div class="form-text small text-muted">Monto mínimo de transferencia: $ 1.000</div>
+                    {% if form.monto.errors %}
+                        <div class="invalid-feedback d-block small">
+                            {{ form.monto.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-brand btn-lg fw-semibold d-flex align-items-center justify-content-center gap-2">
+                        <span>Continuar a Confirmación</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+                    <a href="{% url 'dashboard' %}" class="btn btn-link text-muted text-decoration-none text-center small">
+                        Cancelar y volver al Dashboard
+                    </a>
+                </div>
+            </form>
+
+        </div>
     </div>
+</div>
 
-    <div>
-        {{ form.monto.label_tag }}
-        {{ form.monto }}
+<!-- SCRIPT PARA CONMUTAR CAMPOS INTERNA / EXTERNA -->
+<script>
+    function toggleTransferFields() {
+        const tipoSelect = document.getElementById('{{ form.tipo.id_for_label }}');
+        const groupCuenta = document.getElementById('group-cuenta-destino');
+        const groupContacto = document.getElementById('group-contacto');
 
-        {% for error in form.monto.errors %}
-            <p>{{ error }}</p>
-        {% endfor %}
-    </div>
+        if (tipoSelect.value === 'INTERNA') {
+            groupCuenta.style.display = 'block';
+            groupContacto.style.display = 'none';
+        } else if (tipoSelect.value === 'EXTERNA') {
+            groupCuenta.style.display = 'none';
+            groupContacto.style.display = 'block';
+        } else {
+            groupCuenta.style.display = 'block';
+            groupContacto.style.display = 'block';
+        }
+    }
 
-    <div>
-        {{ form.cuenta_destino.label_tag }}
-        {{ form.cuenta_destino }}
-
-        {% for error in form.cuenta_destino.errors %}
-            <p>{{ error }}</p>
-        {% endfor %}
-    </div>
-
-    <div>
-        {{ form.contacto.label_tag }}
-        {{ form.contacto }}
-
-        {% for error in form.contacto.errors %}
-            <p>{{ error }}</p>
-        {% endfor %}
-    </div>
-
-    <button type="submit">
-        Continuar
-    </button>
-</form>
-
+    // Ejecutar al cargar la página para mantener el estado
+    document.addEventListener('DOMContentLoaded', toggleTransferFields);
+</script>
 {% endblock %}

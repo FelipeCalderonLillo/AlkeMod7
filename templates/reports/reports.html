@@ -1,53 +1,206 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
+{% block title %}Reportes e Informes - Alke Wallet{% endblock %}
 
 {% block content %}
+<!-- ENCABEZADO DE PÁGINA -->
+<div class="page-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="page-title mb-1">Reportes de Movimientos</h1>
+        <p class="text-muted small mb-0">Filtra tus transacciones por periodo de tiempo y analiza tus ingresos y egresos</p>
+    </div>
+</div>
 
-<h1>Reportes</h1>
+<!-- FILTRO POR RANGO DE FECHAS -->
+<div class="card card-custom p-4 mb-4 shadow-sm">
+    <h2 class="h6 text-brand-primary fw-semibold mb-3">
+        <i class="bi bi-funnel text-brand-accent me-1"></i> Filtrar por fechas
+    </h2>
 
-<h2>Filtrar período</h2>
+    <form method="get" action="{% url 'reports' %}" class="row g-3 align-items-end">
+        <!-- Errores generales del formulario -->
+        {% if form.non_field_errors %}
+            <div class="col-12">
+                <div class="alert alert-danger p-2 small mb-0">
+                    {% for error in form.non_field_errors %}
+                        <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
 
-<form method="get">
-    {{ form.non_field_errors }}
+        <!-- Fecha Inicio -->
+        <div class="col-12 col-md-4">
+            <label for="{{ form.fecha_inicio.id_for_label }}" class="form-label small fw-medium text-brand-primary">
+                {{ form.fecha_inicio.label }}
+            </label>
+            <input type="date" 
+                   name="{{ form.fecha_inicio.html_name }}" 
+                   id="{{ form.fecha_inicio.id_for_label }}" 
+                   class="form-control {% if form.fecha_inicio.errors %}is-invalid{% endif %}"
+                   value="{{ fecha_inicio|date:'Y-m-d'|default:'' }}">
+            {% if form.fecha_inicio.errors %}
+                <div class="invalid-feedback small">
+                    {{ form.fecha_inicio.errors.0 }}
+                </div>
+            {% endif %}
+        </div>
 
-    <p>
-        {{ form.fecha_inicio.label_tag }}
-        {{ form.fecha_inicio }}
-        {{ form.fecha_inicio.errors }}
-    </p>
+        <!-- Fecha Término -->
+        <div class="col-12 col-md-4">
+            <label for="{{ form.fecha_fin.id_for_label }}" class="form-label small fw-medium text-brand-primary">
+                {{ form.fecha_fin.label }}
+            </label>
+            <input type="date" 
+                   name="{{ form.fecha_fin.html_name }}" 
+                   id="{{ form.fecha_fin.id_for_label }}" 
+                   class="form-control {% if form.fecha_fin.errors %}is-invalid{% endif %}"
+                   value="{{ fecha_fin|date:'Y-m-d'|default:'' }}">
+            {% if form.fecha_fin.errors %}
+                <div class="invalid-feedback small">
+                    {{ form.fecha_fin.errors.0 }}
+                </div>
+            {% endif %}
+        </div>
 
-    <p>
-        {{ form.fecha_fin.label_tag }}
-        {{ form.fecha_fin }}
-        {{ form.fecha_fin.errors }}
-    </p>
+        <!-- Botones -->
+        <div class="col-12 col-md-4 d-flex gap-2">
+            <button type="submit" class="btn btn-brand w-100 d-flex align-items-center justify-content-center gap-2">
+                <i class="bi bi-search"></i>
+                <span>Aplicar Filtro</span>
+            </button>
+            {% if fecha_inicio or fecha_fin %}
+                <a href="{% url 'reports' %}" class="btn btn-outline-secondary" title="Limpiar filtros">
+                    <i class="bi bi-x-circle"></i>
+                </a>
+            {% endif %}
+        </div>
+    </form>
+</div>
 
-    <button type="submit">Generar reporte</button>
-</form>
+<!-- RESUMEN ESTADÍSTICO (RESUMEN) -->
+{% if resumen %}
+<div class="row g-3 mb-4">
+    <!-- Total Ingresos -->
+    <div class="col-12 col-md-4">
+        <div class="card card-custom p-3 border-start border-success border-4 shadow-sm">
+            <span class="text-muted small fw-medium text-uppercase">Ingresos (Abonos)</span>
+            <h3 class="h4 fw-bold text-success my-1">
+                +$ {{ resumen.ingresos|floatformat:"0" }}
+            </h3>
+            <span class="text-muted fs-7">
+                Monto abonado
+            </span>
+        </div>
+    </div>
 
-<h2>Resumen</h2>
+    <!-- Total Egresos -->
+    <div class="col-12 col-md-4">
+        <div class="card card-custom p-3 border-start border-danger border-4 shadow-sm">
+            <span class="text-muted small fw-medium text-uppercase">Egresos (Cargos)</span>
+            <h3 class="h4 fw-bold text-danger my-1">
+                -$ {{ resumen.egresos|floatformat:"0" }}
+            </h3>
+            <span class="text-muted fs-7">
+                Monto transferido/retirado
+            </span>
+        </div>
+    </div>
 
-<ul>
-    <li>Ingresos: ${{ resumen.ingresos }}</li>
-    <li>Egresos: ${{ resumen.egresos }}</li>
-    <li>Cantidad de transacciones: {{ resumen.cantidad_transacciones }}</li>
-</ul>
-
-<h2>Transacciones</h2>
-
-{% if transacciones %}
-    <ul>
-        {% for transaccion in transacciones %}
-            <li>
-                {{ transaccion.get_tipo_display }}
-                -
-                ${{ transaccion.monto }}
-                -
-                {{ transaccion.fecha_hora }}
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No existen transacciones en el período seleccionado.</p>
+    <!-- Balance del Periodo -->
+    <div class="col-12 col-md-4">
+        <div class="card card-custom p-3 border-start border-primary border-4 shadow-sm">
+            <span class="text-muted small fw-medium text-uppercase">Balance del periodo</span>
+            <h3 class="h4 fw-bold {% if resumen.balance >= 0 %}text-brand-primary{% else %}text-danger{% endif %} my-1">
+                {% if resumen.balance > 0 %}+{% endif %}$ {{ resumen.balance|floatformat:"0" }}
+            </h3>
+            <span class="text-muted fs-7">
+                {{ resumen.cantidad_transacciones }} transacciones encontradas
+            </span>
+        </div>
+    </div>
+</div>
 {% endif %}
 
+<!-- TABLA DE MOVIMIENTOS FILTRADOS -->
+<div class="card card-custom p-4 shadow-sm">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h5 text-brand-primary fw-semibold mb-0">Detalle de Movimientos</h2>
+        <span class="badge bg-soft-brand text-dark rounded-pill px-3 py-1 fs-7">
+            {{ transacciones|length }} resultados
+        </span>
+    </div>
+
+    {% if transacciones %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 custom-table">
+                <thead>
+                    <tr>
+                        <th scope="col" class="text-muted small fw-medium">Tipo</th>
+                        <th scope="col" class="text-muted small fw-medium">Detalle / Destino</th>
+                        <th scope="col" class="text-muted small fw-medium">Fecha y hora</th>
+                        <th scope="col" class="text-muted small fw-medium text-end">Monto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transacciones %}
+                        <tr>
+                            <!-- Icono y Tipo -->
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if t.cuenta_destino == user.cuenta %}
+                                        <span class="badge bg-success-soft text-success rounded-circle p-2">
+                                            <i class="bi bi-arrow-down-left"></i>
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-danger-soft text-danger rounded-circle p-2">
+                                            <i class="bi bi-arrow-up-right"></i>
+                                        </span>
+                                    {% endif %}
+                                    <span class="fw-semibold small text-brand-primary">
+                                        {{ t.get_tipo_display }}
+                                    </span>
+                                </div>
+                            </td>
+
+                            <!-- Detalle -->
+                            <td class="small text-muted">
+                                {% if t.tipo == 'DEPOSITO' %}
+                                    Carga de saldo a cuenta propia
+                                {% elif t.tipo == 'TRANSFERENCIA_INTERNA' %}
+                                    {% if t.cuenta_origen == user.cuenta %}
+                                        Para: {{ t.destino_nombre }} {{ t.destino_apellido }} ({{ t.destino_numero_cuenta }})
+                                    {% else %}
+                                        De: {{ t.origen_nombre }} {{ t.origen_apellido }} ({{ t.origen_numero_cuenta }})
+                                    {% endif %}
+                                {% elif t.tipo == 'TRANSFERENCIA_EXTERNA' %}
+                                    Para: {{ t.destino_nombre }} {{ t.destino_apellido }} - {{ t.destino_banco }}
+                                {% endif %}
+                            </td>
+
+                            <!-- Fecha y Hora -->
+                            <td class="small text-muted">
+                                {{ t.fecha_hora|date:"d/m/Y - H:i" }} hrs
+                            </td>
+
+                            <!-- Monto -->
+                            <td class="text-end fw-bold font-monospace">
+                                {% if t.cuenta_destino == user.cuenta %}
+                                    <span class="text-success">+$ {{ t.monto|floatformat:"0" }}</span>
+                                {% else %}
+                                    <span class="text-danger">-$ {{ t.monto|floatformat:"0" }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-file-earmark-bar-graph fs-1 d-block mb-2 text-brand-accent"></i>
+            <p class="small mb-0">No se encontraron movimientos para el rango de fechas seleccionado.</p>
+        </div>
+    {% endif %}
+</div>
 {% endblock %}

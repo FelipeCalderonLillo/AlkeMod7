@@ -1,21 +1,101 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
+{% block title %}Historial de Movimientos - Alke Wallet{% endblock %}
 
 {% block content %}
+<!-- ENCABEZADO DE PÁGINA -->
+<div class="page-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h1 class="page-title mb-1">Historial de Movimientos</h1>
+        <p class="text-muted small mb-0">Consulta la lista completa de tus depósitos y transferencias</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="{% url 'reports' %}" class="btn btn-outline-brand d-flex align-items-center gap-2">
+            <i class="bi bi-file-earmark-bar-graph"></i>
+            <span>Ver Reportes con Filtros</span>
+        </a>
+    </div>
+</div>
 
-<h1>Historial de transacciones</h1>
+<!-- TARJETA DEL HISTORIAL -->
+<div class="card card-custom p-4 shadow-sm">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h5 text-brand-primary fw-semibold mb-0">Todas las Transacciones</h2>
+        <span class="badge bg-soft-brand text-dark rounded-pill px-3 py-1 fs-7">
+            {{ transacciones|length }} registros
+        </span>
+    </div>
 
-{% if transacciones %}
-    <ul>
-        {% for transaccion in transacciones %}
-            <li>
-                {{ transaccion.get_tipo_display }}
-                - ${{ transaccion.monto }}
-                - {{ transaccion.fecha_hora }}
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No tienes transacciones registradas.</p>
-{% endif %}
+    {% if transacciones %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 custom-table">
+                <thead>
+                    <tr>
+                        <th scope="col" class="text-muted small fw-medium">Tipo</th>
+                        <th scope="col" class="text-muted small fw-medium">Detalle / Destino</th>
+                        <th scope="col" class="text-muted small fw-medium">Fecha y hora</th>
+                        <th scope="col" class="text-muted small fw-medium text-end">Monto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transacciones %}
+                        <tr>
+                            <!-- Icono y Tipo -->
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if t.cuenta_destino == user.cuenta %}
+                                        <span class="badge bg-success-soft text-success rounded-circle p-2">
+                                            <i class="bi bi-arrow-down-left"></i>
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-danger-soft text-danger rounded-circle p-2">
+                                            <i class="bi bi-arrow-up-right"></i>
+                                        </span>
+                                    {% endif %}
+                                    <span class="fw-semibold small text-brand-primary">
+                                        {{ t.get_tipo_display }}
+                                    </span>
+                                </div>
+                            </td>
 
+                            <!-- Detalle -->
+                            <td class="small text-muted">
+                                {% if t.tipo == 'DEPOSITO' %}
+                                    Carga de saldo a cuenta propia
+                                {% elif t.tipo == 'TRANSFERENCIA_INTERNA' %}
+                                    {% if t.cuenta_origen == user.cuenta %}
+                                        Para: {{ t.destino_nombre }} {{ t.destino_apellido }} ({{ t.destino_numero_cuenta }})
+                                    {% else %}
+                                        De: {{ t.origen_nombre }} {{ t.origen_apellido }} ({{ t.origen_numero_cuenta }})
+                                    {% endif %}
+                                {% elif t.tipo == 'TRANSFERENCIA_EXTERNA' %}
+                                    Para: {{ t.destino_nombre }} {{ t.destino_apellido }} - {{ t.destino_banco }}
+                                {% endif %}
+                            </td>
+
+                            <!-- Fecha y Hora -->
+                            <td class="small text-muted">
+                                {{ t.fecha_hora|date:"d/m/Y - H:i" }} hrs
+                            </td>
+
+                            <!-- Monto (Abono + / Cargo -) -->
+                            <td class="text-end fw-bold font-monospace">
+                                {% if t.cuenta_destino == user.cuenta %}
+                                    <span class="text-success">+$ {{ t.monto|floatformat:"0" }}</span>
+                                {% else %}
+                                    <span class="text-danger">-$ {{ t.monto|floatformat:"0" }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-clock-history fs-1 d-block mb-2 text-brand-accent"></i>
+            <p class="small mb-0">Aún no se registraron movimientos en tu cuenta.</p>
+        </div>
+    {% endif %}
+</div>
 {% endblock %}
